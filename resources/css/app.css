@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Tùy chỉnh container form */
+.custom-tour-container {
+    @apply max-w-2xl mx-auto py-10 px-4 sm:px-6 lg:px-8;
+}
+
+/* Card form */
+.custom-tour-card {
+    @apply bg-white shadow-2xl rounded-xl p-6 sm:p-8 border border-gray-100 transition-all duration-300 hover:shadow-lg;
+}
+
+/* Tiêu đề form */
+.custom-tour-title {
+    @apply text-3xl font-bold text-gray-800 mb-6 text-center bg-gradient-to-r from-blue-600 to-blue-400 text-transparent bg-clip-text;
+}
+
+/* Nhãn (label) */
+.custom-tour-label {
+    @apply block text-lg font-medium text-gray-700 mb-2;
+}
+
+/* Input và select */
+.custom-tour-input {
+    @apply w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+.custom-tour-input:focus {
+    @apply ring-2 ring-blue-500 border-transparent;
+}
+
+.custom-tour-select {
+    @apply custom-tour-input appearance-none;
+}
+
+/* Nút điều chỉnh vé */
+.custom-tour-ticket-btn {
+    @apply px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400;
+}
+
+/* Hiển thị tổng chi phí */
+.custom-tour-total {
+    @apply bg-gray-50 p-5 rounded-lg shadow-md text-center;
+}
+
+.custom-tour-total p:first-child {
+    @apply text-xl font-semibold text-gray-700;
+}
+
+.custom-tour-total p:last-child {
+    @apply text-2xl font-bold text-blue-600;
+}
+
+/* Nút submit */
+.custom-tour-submit {
+    @apply w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-all duration-200;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .custom-tour-container {
+        @apply py-6 px-4;
+    }
+
+    .custom-tour-card {
+        @apply p-4;
+    }
+
+    .custom-tour-title {
+        @apply text-2xl;
+    }
+
+    .custom-tour-input {
+        @apply py-2;
+    }
+
+    .custom-tour-ticket-btn {
+        @apply px-2 py-1;
+    }
+
+    .custom-tour-total {
+        @apply p-3;
+    }
+
+    .custom-tour-total p:last-child {
+        @apply text-xl;
+    }
+
+    .custom-tour-submit {
+        @apply py-2;
+    }
+}
