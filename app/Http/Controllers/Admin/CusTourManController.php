@@ -36,14 +36,14 @@ class CusTourManController extends Controller
             'phone' => 'required|string|max:15|regex:/^[0-9]{10,15}$/',
             'email' => 'required|email|max:255',
             'type' => 'required|in:custom',
-            'priceData' => 'required|json',
+            'price_data' => 'required|json',
         ]);
     } catch (\Illuminate\Validation\ValidationException $e) {
         Log::error('Lỗi validate:', $e->errors());
         return back()->withErrors($e->validator)->withInput();
     }
 
-    $priceData = json_decode($validated['priceData'], true);
+    $priceData = json_decode($validated['price_data'], true);
     if (!$priceData) {
         Log::error('Không thể giải mã priceData:', ['priceData' => $validated['priceData']]);
         return back()->with('error', 'Dữ liệu giá không hợp lệ.');

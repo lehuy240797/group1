@@ -33,7 +33,6 @@ class CustomTourBookings extends Model
         'tour_guide_name',
         'driver_name',
         'places'
-
     ];
 
     protected $casts = [
@@ -54,20 +53,9 @@ class CustomTourBookings extends Model
         return $this->belongsTo(CustomTour::class, 'tour_id');
     }
 
-    protected static function booted()
-    {
-        static::deleting(function ($tour) {
-            CustomTourBookings::where('tour_id', $tour->id)->delete();
-        });
-    }
-
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    public function tour()
-    {
-        return $this->belongsTo(CustomTour::class, 'tour_id');
-    }
 }

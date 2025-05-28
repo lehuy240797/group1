@@ -31,7 +31,6 @@ class AvailableTour extends Model
         'image',
         'type',
         'status',
-        // Các trường khác
     ];
 
     public function tourguide()

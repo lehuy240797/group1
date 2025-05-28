@@ -1,14 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    if (!window.priceData || !window.placesData || !window.flightPrices) {
-        console.error("priceData, placesData, or flightPrices is not loaded. Check priceData.js or file loading.");
-        Swal.fire({
-            icon: 'error',
-            title: 'Lỗi!',
-            text: 'Không thể tải dữ liệu giá. Vui lòng thử lại sau.',
-            confirmButtonColor: '#d33'
-        });
-    }
-
     window.adjustTicket = function(ticketId, change) {
         let ticketInput = document.getElementById(ticketId);
         let newValue = parseInt(ticketInput.value) + change;
@@ -18,16 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    const solarLunar = window.solarLunar;
-    console.log("solarLunar loaded:", solarLunar);
-    console.log("priceData loaded:", window.priceData);
-    console.log("flightPrices loaded:", window.flightPrices);
-    console.log("placesData loaded:", window.placesData);
-
     const solarHolidays = [
         "2025-01-01", "2025-04-30", "2025-05-01", "2025-09-02",
         "2026-01-01", "2026-04-30", "2026-05-01", "2026-09-02",
-        "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22"
+        "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22", "2026-02-23"
     ];
 
     function isSolarHoliday(dateStr) {
@@ -36,7 +20,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function isHoliday(date) {
         const dateStr = date.toISOString().slice(0, 10);
-        const isHolidayResult = isSolarHoliday(dateStr) || (typeof window.isInLunarHoliday === 'function' && window.isInLunarHoliday(date));
+        let isHolidayResult = isSolarHoliday(dateStr);
+        try {
+            isHolidayResult = isHolidayResult || isInLunarHoliday(date);
+        } catch (e) {
+            console.error("Error in isInLunarHoliday:", e);
+        }
         console.log("isHoliday(" + dateStr + "):", isHolidayResult);
         return isHolidayResult;
     }
@@ -49,40 +38,47 @@ document.addEventListener('DOMContentLoaded', function () {
         let flightPriceInput = document.getElementById("flight_price");
 
         console.log("Destination changed:", destination);
-        console.log("priceData:", window.priceData);
-        console.log("flightPrices:", window.flightPrices);
+        console.log("priceData:", priceData);
+        console.log("flightPrices:", flightPrices);
 
-        flightPriceDisplay.textContent = (window.flightPrices[destination] || 0).toLocaleString() + " VND";
-        flightPriceInput.value = window.flightPrices[destination] || 0;
+        flightPriceDisplay.textContent = (flightPrices[destination] || 0).toLocaleString() + " VND";
+        flightPriceInput.value = flightPrices[destination] || 0;
 
-        placesContainer.hidden = !destination;
-        placesContainer.innerHTML = '';
-        hotelSelect.innerHTML = '<option value="" disabled selected>Chọn khách sạn</option>';
+       if (destination && placesData[destination]) {
+            placesContainer.classList.remove("hidden");
+            placesContainer.innerHTML = '<label class="block font-semibold text-gray-700">Chọn nơi bạn muốn đến:</label><div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-lg"></div>';
+            const checkboxContainer = placesContainer.querySelector("div");
 
-        if (destination && window.priceData[destination]) {
-            let label = document.createElement("label");
-            label.textContent = "Chọn nơi bạn muốn đến:";
-            label.classList.add("block", "font-semibold", "text-gray-700");
-            placesContainer.appendChild(label);
-
-            window.placesData[destination].forEach(place => {
-                let checkbox = document.createElement("input");
+            placesData[destination].forEach(place => {
+                const div = document.createElement("div");
+                div.className = "flex items-center bg-white border border-gray-200 rounded-md px-2 py-1 hover:bg-gray-100 transition-colors w-full";
+                const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.name = "places[]";
                 checkbox.value = place;
-                checkbox.classList.add("mr-2");
-                checkbox.addEventListener("change", updateTotalCost);
+                checkbox.id = `place_${place.replace(/\s+/g, "_")}`;
+                checkbox.classList.add("mr-1");
+                checkbox.addEventListener("change", function() {
+                    console.log(`Checkbox ${place} changed, checked: ${this.checked}`);
+                    updateTotalCost();
+                });
 
-                let label = document.createElement("label");
-                label.appendChild(checkbox);
-                label.append(` ${place} - ${(window.priceData[destination]["Địa điểm"][place] || 0).toLocaleString()} VND`);
-                label.classList.add("block");
-
-                placesContainer.appendChild(label);
+                const label = document.createElement("label");
+                label.htmlFor = `place_${place.replace(/\s+/g, "_")}`;
+                label.textContent = `${place} (${(window.priceData[destination]?.["Địa điểm"]?.[place] || 0).toLocaleString()} VND)`;
+                label.className = "text-sm truncate";
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                checkboxContainer.appendChild(div);
             });
+        } else {
+            placesContainer.classList.add("hidden");
+            placesContainer.innerHTML = '<label class="block font-semibold text-gray-700">Chọn nơi bạn muốn đến:</label><div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-lg"></div>';
         }
 
-        if (destination && window.priceData[destination]["Khách sạn"]) {
+        // Cập nhật danh sách khách sạn
+        hotelSelect.innerHTML = '<option value="" disabled selected>Chọn khách sạn</option>';
+        if (destination && window.priceData[destination]?.["Khách sạn"]) {
             Object.entries(window.priceData[destination]["Khách sạn"]).forEach(([hotelName, price]) => {
                 let option = document.createElement("option");
                 option.value = hotelName;
@@ -92,6 +88,41 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         updateTotalCost();
+    });
+
+    document.getElementById("hotel").addEventListener("change", updateTotalCost);
+    document.getElementById("start_date").addEventListener("change", updateTotalCost);
+    document.getElementById("end_date").addEventListener("change", updateTotalCost);
+    document.getElementById("adult_tickets").addEventListener("input", updateTotalCost);
+    document.getElementById("child_tickets").addEventListener("input", updateTotalCost);
+
+    document.getElementById('custom-tour-form').addEventListener('submit', function(event) {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+            event.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Ngày về phải sau ngày đi.',
+                confirmButtonColor: '#d33'
+            });
+        } else {
+            console.log("Form submitted with data:", {
+                destination: document.getElementById('destination').value,
+                hotel: document.getElementById('hotel').value,
+                start_date: startDate,
+                end_date: endDate,
+                adult_tickets: document.getElementById('adult_tickets').value,
+                child_tickets: document.getElementById('child_tickets').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                price_data: document.getElementById('priceData').value,
+                flight_price: document.getElementById('flight_price').value
+            });
+        }
     });
 
     function updateTotalCost() {
@@ -104,26 +135,14 @@ document.addEventListener('DOMContentLoaded', function () {
         let hotel = document.getElementById("hotel").value.trim();
 
         console.log("Inputs:", { destination, startDate, endDate, adultTickets, childTickets, hotel });
-        console.log("priceData[destination]:", window.priceData?.[destination]);
-        console.log("Available hotels in priceData:", window.priceData?.[destination]?.["Khách sạn"]);
+    if (!destination) console.log("Warning: No destination selected");
+    if (!startDate) console.log("Warning: No start date selected");
+    if (!endDate) console.log("Warning: No end date selected");
+    if (!hotel) console.log("Warning: No hotel selected");
 
-        // Kiểm tra nếu thiếu thông tin cần thiết
-        if (!destination || !startDate || !endDate || !hotel) {
-            console.log("Missing required fields. Total cost set to 0.");
-            document.getElementById("total-cost").textContent = "0 VND";
-            return;
-        }
-
-        let days = (new Date(endDate) > new Date(startDate)) ?
-            Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24))) : 0;
-        let nights = days > 1 ? days - 1 : days;
-        console.log("days:", days, "nights:", nights);
-
-        if (days === 0) {
-            console.log("Invalid date range. Total cost set to 0.");
-            document.getElementById("total-cost").textContent = "0 VND";
-            return;
-        }
+        let numDays = (startDate && endDate && new Date(endDate) > new Date(startDate)) ?
+            Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) : 0;
+        console.log("numDays:", numDays);
 
         let baseCost = window.priceData[destination]?.["Giá chung"] || 0;
         console.log("Base cost (Giá chung):", baseCost);
@@ -137,51 +156,53 @@ document.addEventListener('DOMContentLoaded', function () {
         baseCost += placeCost;
         console.log("Base cost after places:", baseCost);
 
+        if (numDays > 1) {
+            baseCost += baseCost * 0.1 * (numDays - 1);
+            console.log("Base cost after day increase:", baseCost);
+        }
+
         let ticketCost = adultTickets > 0 ? (adultTickets * baseCost) + (childTickets * baseCost * 0.5) : 0;
         console.log("Ticket cost:", ticketCost);
 
-        let totalPeople = adultTickets + childTickets;
-        let numRooms = totalPeople > 0 ? Math.ceil(totalPeople / 2) : 0;
-        let hotelPrice = window.priceData[destination]?.["Khách sạn"]?.[hotel] || 0;
-        console.log("Hotel selected:", hotel, "Hotel price:", hotelPrice);
-        if (hotelPrice === 0 && hotel) {
-            console.warn("Hotel price is 0. Check priceData loading or hotel key match.");
-        }
-        let hotelCost = numRooms * hotelPrice * nights;
-        console.log("Hotel cost:", hotelCost, { hotelPrice, numRooms, nights, totalPeople });
+        let hotelPrice = hotel ? window.priceData[destination]?.["Khách sạn"]?.[hotel] || 0 : 0;
+        let numRooms = childTickets > 0 ? Math.ceil(adultTickets) : Math.ceil(adultTickets / 2);
+        let hotelCost = numRooms * hotelPrice * numDays;
+        console.log("Hotel cost:", hotelCost, { hotelPrice, numRooms, numDays });
 
         let flightPrice = window.flightPrices[destination] || 0;
         let flightCost = (adultTickets + childTickets) * flightPrice;
-        console.log("Flight cost:", flightCost);
+        console.log("Flight cost:", flightCost, { flightPrice, totalTickets: adultTickets + childTickets });
 
         let totalCost = ticketCost + hotelCost + flightCost;
         console.log("Total cost before holiday:", totalCost);
 
-        let isHolidayInRange = false;
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            console.log("Checking date:", d.toISOString().slice(0, 10), "isHoliday:", isHoliday(d));
-            if (isHoliday(d)) {
-                isHolidayInRange = true;
-                break;
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            let isHolidayInRange = false;
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                console.log("Checking date:", d.toISOString().slice(0, 10), "isHoliday:", isHoliday(d));
+                if (isHoliday(d)) {
+                    isHolidayInRange = true;
+                    break;
+                }
             }
-        }
-        console.log("isHolidayInRange:", isHolidayInRange);
-        if (isHolidayInRange) {
-            totalCost *= 1.5;
-            Swal.fire({
-                icon: 'info',
-                title: 'Ngày lễ',
-                text: 'Khoảng thời gian bạn chọn bao gồm ngày lễ, chi phí sẽ tăng 50%.',
-                confirmButtonColor: '#3085d6'
-            });
+            console.log("isHolidayInRange:", isHolidayInRange);
+            if (isHolidayInRange) {
+                totalCost *= 1.5;
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Ngày lễ',
+                    text: 'Khoảng thời gian bạn chọn bao gồm ngày lễ, chi phí sẽ tăng 50%.',
+                    confirmButtonColor: '#3085d6'
+                });
+            }
         }
 
         console.log("Final total cost:", totalCost);
         document.getElementById("total-cost").textContent = `${totalCost.toLocaleString()} VND`;
-        document.getElementById("priceData").value = JSON.stringify(window.priceData || {});
-        document.getElementById("flight_price").value = window.flightPrices[destination] || 0;
+        document.getElementById("priceData").value = JSON.stringify(window.priceData);
+        document.getElementById("flight_price").value = flightPrices[destination] || 0;
     }
 
     document.getElementById("hotel").addEventListener("change", updateTotalCost);
@@ -204,4 +225,5 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+    updateTotalCost();
 });

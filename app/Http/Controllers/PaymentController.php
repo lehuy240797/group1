@@ -136,6 +136,9 @@ class PaymentController extends Controller
                     'name' => $data['name'],
                     'hotel' => $data['hotel'] ?? null,
                     'places' => $data['places'] ?? null,
+                    'flight_price' => $data['flight_price'],
+                    'adult_tickets' => $data['adult_tickets'],
+                    'child_tickets' => $data['child_tickets'],
                 ]);
 
                 Cache::put("qr_paid_status." . $request->token, true, now()->addMinutes(10));
@@ -225,6 +228,9 @@ class PaymentController extends Controller
                     'name' => $bookingData['name'],
                     'hotel' => $bookingData['hotel'] ?? null,
                     'places' => $bookingData['places'] ?? null,
+                    'flight_price' => $bookingData['flight_price'],
+                    'adult_tickets' => $bookingData['adult_tickets'],
+                    'child_tickets' => $bookingData['child_tickets'],
                 ]);
             }
 

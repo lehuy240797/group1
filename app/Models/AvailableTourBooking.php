@@ -11,7 +11,7 @@ class AvailableTourBooking extends Model
 
     protected $table = 'available_tour_bookings';
     protected $fillable = [
-       'tour_id',
+        'tour_id',
         'num_adults',
         'num_children',
         'num_guests',
