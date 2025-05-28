@@ -13,9 +13,11 @@ Dự án quản lý đặt tour du lịch xây dựng bằng Laravel.
 - Vite
 - MySQL
 
-## 👤 Các thành viên của Group 1:
-Student Name        Enrollment Number   
-Nguyen Minh Nhan  -	Student1571988
-Le Nguyen Gia Huy -	Student1571995
-Tran Trung Anh	  - Student1571996
-Dang Quoc Khanh	  - Student1572003
+## 👤 Các thành viên của Group 1
+
+| Họ và Tên          | Mã Số Sinh Viên     |
+|--------------------|---------------------|
+| Nguyen Minh Nhan   | Student1571988      |
+| Le Nguyen Gia Huy  | Student1571995      |
+| Tran Trung Anh     | Student1571996      |
+| Dang Quoc Khanh    | Student1572003      |
