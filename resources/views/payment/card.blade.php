@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="vi">
+@extends('layouts.app') <!-- Or whatever your layout is named -->
 
-<head>
-    <meta charset="UTF-8">
-    <title>Thanh toán bằng thẻ</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite(['resources/css/app.css', 'resources/js/app.js']) <!-- hoặc dùng asset nếu bạn build sẵn -->
-</head>
-
-<body class="bg-gradient-to-b from-blue-100 to-blue-300 min-h-screen flex items-center justify-center p-4">
-
+@section('title', 'Thanh toán bằng thẻ')
+<div class="relative">
+    <!-- Gradient Background -->
+    <div class="absolute inset-0 z-[-1] bg-gradient-to-b from-blue-100 to-blue-300"></div>
+@section('content')
+<div class=" min-h-screen flex items-center justify-center p-4">
     <div class="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
         <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">Thanh toán bằng thẻ Visa/Mastercard</h2>
 
@@ -32,8 +28,7 @@
             </div>
 
             <div>
-                <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn
-                    (MM/YY)</label>
+                <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn (MM/YY)</label>
                 <input type="text" id="expiry_date" name="expiry_date" value="12/25"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     required>
@@ -58,7 +53,5 @@
             </button>
         </form>
     </div>
-
-</body>
-
-</html>
+</div>
+@endsection

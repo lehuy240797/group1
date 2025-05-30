@@ -13,6 +13,8 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Cache;
 use App\Events\BookingPaid;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BookingConfirmation;
 
 class PaymentController extends Controller
 {
@@ -149,6 +151,18 @@ class PaymentController extends Controller
                 return redirect()->route('home')->with('error', 'Lỗi khi tạo booking.');
             }
 
+            // Gửi email xác nhận
+            $bookingDetails = [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'total_price' => $data['total_price'],
+                'booking_code' => $availableTourBookings->booking_code ?? null,
+                'tracking_code' => $customTourBookings->tracking_code ?? null,
+            ];
+
+            Mail::to($data['email'])->send(new BookingConfirmation($bookingDetails));
+
             event(new BookingPaid($availableTourBookings->booking_code ?? $customTourBookings->tracking_code, $request->token));
 
             return view('payment.success', compact('availableTourBookings', 'customTourBookings'));
@@ -189,7 +203,7 @@ class PaymentController extends Controller
                     'tour_id' => $bookingData['tour_id'],
                     'num_adults' => $bookingData['num_adults'],
                     'num_children' => $bookingData['num_children'],
-                    'num_guests' => $bookingData['total_guests'], // Tổng số khách
+                    'num_guests' => $bookingData['total_guests'],
                     'name' => $bookingData['name'],
                     'email' => $bookingData['email'],
                     'phone' => $bookingData['phone'],
@@ -237,6 +251,18 @@ class PaymentController extends Controller
             if (!$availableTourBookings && !$customTourBookings) {
                 return redirect()->route('home')->with('error', 'Lỗi khi tạo booking.');
             }
+
+            // Gửi email xác nhận
+            $bookingDetails = [
+                'name' => $bookingData['name'],
+                'email' => $bookingData['email'],
+                'phone' => $bookingData['phone'],
+                'total_price' => $bookingData['total_price'],
+                'booking_code' => $availableTourBookings->booking_code ?? null,
+                'tracking_code' => $customTourBookings->tracking_code ?? null,
+            ];
+
+            Mail::to($bookingData['email'])->send(new BookingConfirmation($bookingDetails));
 
             session()->forget('booking_data');
 

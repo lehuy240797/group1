@@ -49,4 +49,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(AvailableTour::class, 'driver_id');
     }
+
+    public function customToursAsTourGuide()
+{
+    return $this->hasMany(CustomTour::class, 'tourguide_id');
+}
+
+public function customToursAsDriver()
+{
+    return $this->hasMany(CustomTour::class, 'driver_id');
+}
+
 }

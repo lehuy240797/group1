@@ -14,7 +14,7 @@ class AddDriverIdToToursTable extends Migration
     public function up()
     {
         Schema::table('tours', function (Blueprint $table) {
-            $table->unsignedBigInteger('driver_id')->nullable()->after('tour_guide_id');
+            $table->unsignedBigInteger('driver_id')->nullable()->after('tourguide_id');
             $table->foreign('driver_id')->references('id')->on('users')->onDelete('set null');
         });
     }

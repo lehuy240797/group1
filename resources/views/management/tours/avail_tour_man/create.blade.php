@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-semibold mb-4">Thêm mới Tour</h1>
+   <div class="container mx-auto bg-gray-100 max-w-4xl p-6 border border-gray-300 rounded-lg shadow-sm">
+        <h1 class="text-3xl font-bold p-2 text-gray-800 mb-6">Thêm mới Tour</h1>
 
         @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <ul>
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
+                <ul class="list-disc list-inside">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -14,116 +14,93 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.avail_tour_man.store') }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.avail_tour_man.store') }}" method="POST" class="space-y-6 p-6">
             @csrf
-            <div>
-                <label for="name_tour" class="block text-gray-700 text-sm font-bold mb-2">Tên Tour</label>
-                <select id="name_tour" name="name_tour" required
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">-- Chọn tên Tour --</option>
-                    <option value="Tp.HCM - Hà Nội" {{ old('name_tour') == 'Tp.HCM - Hà Nội' ? 'selected' : '' }}>Tp.HCM -
-                        Hà Nội</option>
-                    <option value="Tp.HCM - Đà Nẵng" {{ old('name_tour') == 'Tp.HCM - Đà Nẵng' ? 'selected' : '' }}>Tp.HCM -
-                        Đà Nẵng</option>
-                    <option value="Tp.HCM - Nha Trang" {{ old('name_tour') == 'Tp.HCM - Nha Trang' ? 'selected' : '' }}>
-                        Tp.HCM - Nha Trang</option>
-                    <option value="Tp.HCM - Huế" {{ old('name_tour') == 'Tp.HCM - Huế' ? 'selected' : '' }}>Tp.HCM - Huế
-                    </option>
-                    <option value="Tp.HCM - Sapa" {{ old('name_tour') == 'Tp.HCM - Sapa' ? 'selected' : '' }}>Tp.HCM - Sapa
-                    </option>
-                    <option value="Tp.HCM - Phú Quốc" {{ old('name_tour') == 'Tp.HCM - Phú Quốc' ? 'selected' : '' }}>Tp.HCM
-                        - Phú Quốc</option>
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tên Tour -->
+                <div>
+                    <label for="name_tour" class="block text-sm font-medium text-gray-700 mb-1">Tên Tour</label>
+                    <select id="name_tour" name="name_tour" required
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn tên Tour --</option>
+                        <option value="Tp.HCM - Hà Nội" {{ old('name_tour') == 'Tp.HCM - Hà Nội' ? 'selected' : '' }}>Tp.HCM - Hà Nội</option>
+                        <option value="Tp.HCM - Đà Nẵng" {{ old('name_tour') == 'Tp.HCM - Đà Nẵng' ? 'selected' : '' }}>Tp.HCM - Đà Nẵng</option>
+                        <option value="Tp.HCM - Nha Trang" {{ old('name_tour') == 'Tp.HCM - Nha Trang' ? 'selected' : '' }}>Tp.HCM - Nha Trang</option>
+                        <option value="Tp.HCM - Huế" {{ old('name_tour') == 'Tp.HCM - Huế' ? 'selected' : '' }}>Tp.HCM - Huế</option>
+                        <option value="Tp.HCM - Sapa" {{ old('name_tour') == 'Tp.HCM - Sapa' ? 'selected' : '' }}>Tp.HCM - Sapa</option>
+                        <option value="Tp.HCM - Phú Quốc" {{ old('name_tour') == 'Tp.HCM - Phú Quốc' ? 'selected' : '' }}>Tp.HCM - Phú Quốc</option>
+                    </select>
+                </div>
 
-            </div>
+                <!-- Thời gian Tour -->
+                <div>
+                    <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Thời gian Tour</label>
+                    <select name="duration" id="duration" onchange="generateItinerary()"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn thời gian --</option>
+                        <option value="3n2d" {{ old('duration') == '3n2d' ? 'selected' : '' }}>3 ngày 2 đêm</option>
+                        <option value="4n3d" {{ old('duration') == '4n3d' ? 'selected' : '' }}>4 ngày 3 đêm</option>
+                    </select>
+                </div>
 
-            <div>
-                <label for="duration" class="block text-gray-700 text-sm font-bold mb-2">Thời gian Tour:</label>
-                <select name="duration" id="duration" onchange="generateItinerary()"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">-- Chọn thời gian --</option>
-                    <option value="3n2d" {{ old('duration') == '3n2d' ? 'selected' : '' }}>3 ngày 2 đêm</option>
-                    <option value="4n3d" {{ old('duration') == '4n3d' ? 'selected' : '' }}>4 ngày 3 đêm</option>
-                </select>
-            </div>
+                <!-- Địa điểm -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
+                    <input type="text" name="location" id="location" readonly
+                        class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-100 cursor-not-allowed"
+                        value="{{ old('location') }}">
+                    <input type="hidden" name="location_value" id="location_value" value="{{ old('location_value') }}">
+                </div>
 
-            <div>
-                <label for="itinerary" class="block text-gray-700 text-sm font-bold mb-2">Lịch trình chi tiết:</label>
-                <textarea name="itinerary" id="itinerary" rows="6" readonly
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 text-sm">{{ old('itinerary') }}</textarea>
-            </div>
+                <!-- Khách sạn -->
+                <div>
+                    <label for="hotel" class="block text-sm font-medium text-gray-700 mb-1">Khách sạn</label>
+                    <select name="hotel" id="hotel"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn khách sạn --</option>
+                    </select>
+                </div>
 
-            <div>
-                <label for="location" class="block text-gray-700 text-sm font-bold mb-2">Địa điểm</label>
-                <input type="text" name="location" id="location" readonly
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
-                    value="{{ old('location') }}">
-                <input type="hidden" name="location_value" id="location_value" value="{{ old('location_value') }}">
-            </div>
+                <!-- Ngày đi -->
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Ngày đi</label>
+                    <input type="date" name="start_date" id="start_date"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value="{{ old('start_date') }}">
+                </div>
 
-            <div id="imagePreview" class="grid grid-cols-3 gap-4 mt-4">
-            </div>
+                <!-- Ngày về -->
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Ngày về</label>
+                    <input type="date" name="end_date" id="end_date" readonly
+                        class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-100 cursor-not-allowed"
+                        value="{{ old('end_date') }}">
+                </div>
 
-            <div>
-                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Mô tả</label>
-                <textarea
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="description" name="description">{{ old('description') }}</textarea>
-            </div>
-            <div>
-                <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Giá</label>
-                <input type="number"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="price" name="price" value="{{ old('price') }}" required min="0">
-            </div>
+                <!-- Số lượng khách tối đa -->
+                <div>
+                    <label for="max_guests" class="block text-sm font-medium text-gray-700 mb-1">Số lượng khách tối đa</label>
+                    <input type="number" name="max_guests" id="max_guests"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value="{{ old('max_guests') }}">
+                </div>
 
+                <!-- Phương tiện di chuyển -->
+                <div>
+                    <label for="transportation" class="block text-sm font-medium text-gray-700 mb-1">Phương tiện di chuyển</label>
+                    <select name="transportation" id="transportation"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn phương tiện --</option>
+                        <option value="Máy bay" {{ old('transportation') == 'Máy bay' ? 'selected' : '' }}>Máy bay</option>
+                        <option value="Xe buýt" {{ old('transportation') == 'Xe buýt' ? 'selected' : '' }}>Xe buýt</option>
+                    </select>
+                </div>
 
-
-            <div>
-                <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">Ngày đi:</label>
-                <input type="date" name="start_date" id="start_date"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value="{{ old('start_date') }}">
-            </div>
-
-            <div>
-                <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">Ngày về:</label>
-                <input type="date" name="end_date" id="end_date" readonly
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value="{{ old('end_date') }}">
-            </div>
-
-            <div>
-                <label for="max_guests" class="block text-gray-700 text-sm font-bold mb-2">Số lượng khách tối đa:</label>
-                <input type="number" name="max_guests" id="max_guests"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value="{{ old('max_guests') }}">
-            </div>
-
-            <div>
-                <label for="transportation" class="block text-gray-700 text-sm font-bold mb-2">Phương tiện di
-                    chuyển:</label>
-                <select name="transportation" id="transportation"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">-- Chọn phương tiện --</option>
-                    <option value="Máy bay" {{ old('transportation') == 'Máy bay' ? 'selected' : '' }}>Máy bay</option>
-                    <option value="Xe buýt" {{ old('transportation') == 'Xe buýt' ? 'selected' : '' }}>Xe buýt</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="hotel" class="block text-gray-700 text-sm font-bold mb-2">Khách sạn:</label>
-                <select name="hotel" id="hotel"
-                    class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
-                    <option value="">-- Chọn khách sạn --</option>
-                </select>
-
-                <<div>
-                    <label for="tourguide_id" class="block text-gray-700 text-sm font-bold mb-2">Phân công
-                        Tourguide:</label>
-                    <select name="tourguide_id" id="tourguide_id"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        required>
+                <!-- Phân công Tourguide -->
+                <div>
+                    <label for="tourguide_id" class="block text-sm font-medium text-gray-700 mb-1">Phân công Tourguide</label>
+                    <select name="tourguide_id" id="tourguide_id" required
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">-- Chọn Tourguide --</option>
                         @foreach ($tourguides as $tourguide)
                             <option value="{{ $tourguide->id }}"
@@ -132,31 +109,64 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                <!-- Phân công Driver -->
+                <div>
+                    <label for="driver_id" class="block text-sm font-medium text-gray-700 mb-1">Phân công Driver</label>
+                    <select name="driver_id" id="driver_id" required
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn Driver --</option>
+                        @foreach ($drivers as $driver)
+                            <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
+                                {{ $driver->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Giá -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Giá</label>
+                    <input type="number" id="price" name="price" required min="0"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value="{{ old('price') }}">
+                </div>
             </div>
 
+            <!-- Lịch trình chi tiết -->
             <div>
-                <label for="driver_id" class="block text-gray-700 text-sm font-bold mb-2">Phân công Driver:</label>
-                <select name="driver_id" id="driver_id"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    required>
-                    <option value="">-- Chọn Driver --</option>
-                    @foreach ($drivers as $driver)
-                        <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
-                            {{ $driver->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <label for="itinerary" class="block text-sm font-medium text-gray-700 mb-1">Lịch trình chi tiết</label>
+                <textarea name="itinerary" id="itinerary" rows="6" readonly
+                    class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-100 cursor-not-allowed">{{ old('itinerary') }}</textarea>
             </div>
 
-            <button type="submit"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Lưu
-                Tour</button>
-            <a href="{{ route('admin.avail_tour_man.index') }}"
-                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Hủy</a>
+            <!-- Mô tả -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+                <textarea id="description" name="description"
+                    class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
+            </div>
+
+            <!-- Hình ảnh -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Hình ảnh</label>
+                <div id="imagePreview" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="flex justify-end space-x-4">
+                <a href="{{ route('admin.avail_tour_man.index') }}"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Hủy</a>
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">Lưu Tour</button>
+            </div>
         </form>
     </div>
 
     <script>
+        // JavaScript giữ nguyên như code gốc
         const hotelOptions = {
             "hanoi": ["Mariott", "Lotte Hotel", "InterContinental"],
             "danang": ["Furama Resort", "Novotel", "Danang Golden Bay"],
@@ -183,32 +193,13 @@
             ]
         };
 
-        // Ánh xạ tên tour với địa điểm và giá trị lưu vào DB
         const locationMap = {
-            "Tp.HCM - Hà Nội": {
-                display: "Hà Nội",
-                value: "hanoi"
-            },
-            "Tp.HCM - Đà Nẵng": {
-                display: "Đà Nẵng",
-                value: "danang"
-            },
-            "Tp.HCM - Nha Trang": {
-                display: "Nha Trang",
-                value: "nhatrang"
-            },
-            "Tp.HCM - Huế": {
-                display: "Huế",
-                value: "hue"
-            },
-            "Tp.HCM - Sapa": {
-                display: "Sapa",
-                value: "sapa"
-            },
-            "Tp.HCM - Phú Quốc": {
-                display: "Phú Quốc",
-                value: "phuquoc"
-            }
+            "Tp.HCM - Hà Nội": { display: "Hà Nội", value: "hanoi" },
+            "Tp.HCM - Đà Nẵng": { display: "Đà Nẵng", value: "danang" },
+            "Tp.HCM - Nha Trang": { display: "Nha Trang", value: "nhatrang" },
+            "Tp.HCM - Huế": { display: "Huế", value: "hue" },
+            "Tp.HCM - Sapa": { display: "Sapa", value: "sapa" },
+            "Tp.HCM - Phú Quốc": { display: "Phú Quốc", value: "phuquoc" }
         };
 
         const nameTourSelect = document.getElementById('name_tour');
@@ -221,12 +212,10 @@
             const selectedTour = this.value;
             const selectedLocation = locationMap[selectedTour];
 
-            // Cập nhật field Địa điểm
             if (selectedLocation) {
                 locationInput.value = selectedLocation.display;
                 locationValueInput.value = selectedLocation.value;
 
-                // Cập nhật danh sách khách sạn
                 hotelSelect.innerHTML = '<option value="">-- Chọn khách sạn --</option>';
                 if (hotelOptions[selectedLocation.value]) {
                     hotelOptions[selectedLocation.value].forEach(hotel => {
@@ -237,13 +226,12 @@
                     });
                 }
 
-                // Cập nhật hình ảnh
                 imagePreview.innerHTML = '';
                 if (images[selectedLocation.value]) {
                     images[selectedLocation.value].forEach(img => {
                         const imgElem = document.createElement('img');
                         imgElem.src = `/images/${selectedLocation.value}/${img}`;
-                        imgElem.className = 'w-32 h-32 object-cover m-2';
+                        imgElem.className = 'w-24 h-24 object-cover rounded-lg';
                         imagePreview.appendChild(imgElem);
                     });
                 }
@@ -254,7 +242,6 @@
                 imagePreview.innerHTML = '';
             }
 
-            // Gọi hàm generateItinerary để cập nhật lịch trình
             generateItinerary();
         });
 
@@ -299,9 +286,6 @@
                 case '4n3d':
                     daysToAdd = 3;
                     break;
-                case '5n4d':
-                    daysToAdd = 4;
-                    break;
                 default:
                     break;
             }
@@ -310,7 +294,6 @@
             const formattedEndDate = startDate.toISOString().split('T')[0];
             endDateInput.value = formattedEndDate;
         }
-
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('start_date').addEventListener('change', calculateEndDate);
@@ -325,8 +308,6 @@
                 updateTourguidesAndDrivers();
             });
 
-
-            // Khởi tạo giá trị ban đầu nếu có old('name_tour')
             if (nameTourSelect.value) {
                 const event = new Event('change');
                 nameTourSelect.dispatchEvent(event);

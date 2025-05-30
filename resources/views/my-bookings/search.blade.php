@@ -7,18 +7,12 @@
 </div>
 
 @section('content')
+    <div class="relative z-10 flex items-center justify-center min-h-[60vh] px-4">
+        <div class="bg-white shadow-xl rounded-lg p-8 max-w-xl w-full">
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800"data-animate="animate__fadeIn">Tra Cứu Mã
+                Đặt Tour</h1>
 
-
-<div class="relative z-10 container mx-auto py-8 max-w-lg">
-  <div class="bg-white bg-opacity-90 shadow-xl rounded-lg p-6">
-<div class="fixed top-0 left-0 w-full h-full bg-white opacity-0 z-[-1]"></div>
-
-
-    <div class="container mx-auto py-8 max-w-lg">
-        <div class="bg-white shadow-xl rounded-lg p-6">
-            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800"data-animate="animate__fadeIn">Tra Cứu Mã Đặt Tour</h1>
-
-           @if (session('error'))
+            @if (session('error'))
                 <div class="bg-red-100 text-red-700 px-4 py-3 rounded mb-6 text-center">
                     {{ session('error') }}
                 </div>
@@ -34,36 +28,35 @@
                         required>
                 </div>
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Tra cứu</button>
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Tra
+                    cứu</button>
             </form>
         </div>
     </div>
-</div>
-</div>
-<script src="//unpkg.com/alpinejs" defer></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const animatedElements = document.querySelectorAll('[data-animate]');
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const animatedElements = document.querySelectorAll('[data-animate]');
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const el = entry.target;
-                const animation = el.getAttribute('data-animate');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const el = entry.target;
+                    const animation = el.getAttribute('data-animate');
 
-                if (entry.isIntersecting) {
-                    el.classList.remove('opacity-0');
-                    el.classList.add('animate__animated', animation);
-                } else {
-                    // Reset animation when element leaves the viewport
-                    el.classList.remove('animate__animated', animation);
-                    el.classList.add('opacity-0');
-                }
+                    if (entry.isIntersecting) {
+                        el.classList.remove('opacity-0');
+                        el.classList.add('animate__animated', animation);
+                    } else {
+                        // Reset animation when element leaves the viewport
+                        el.classList.remove('animate__animated', animation);
+                        el.classList.add('opacity-0');
+                    }
+                });
+            }, {
+                threshold: 0.1
             });
-        }, {
-            threshold: 0.1
-        });
 
-        animatedElements.forEach(el => observer.observe(el));
-    });
-</script>
+            animatedElements.forEach(el => observer.observe(el));
+        });
+    </script>
 @endsection

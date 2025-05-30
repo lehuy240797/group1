@@ -44,6 +44,7 @@ class FeedbackController extends Controller
         $tourId = null;
         $isEligible = false;
         $tourType = null;
+        $name = null;
 
         if ($booking) {
             $tourType = 'available';
@@ -54,12 +55,14 @@ class FeedbackController extends Controller
             }
             $tourId = $booking->tour_id;
             $isEligible = $tour->status === AvailableTour::STATUS_COMPLETED;
-            Log::info('AvailableTour status: ', ['tour' => $tour, 'isEligible' => $isEligible]);
+            $name = $booking->name ?? 'Khách hàng';
+            Log::info('AvailableTour status: ', ['tour' => $tour, 'isEligible' => $isEligible, 'name' => $name]);
         } elseif ($customBooking) {
             $tourType = 'custom';
-            $tourId = null; // Không cần tour_id cho custom tour
+            $tourId = null;
             $isEligible = $customBooking->status === 'approved';
-            Log::info('CustomTour status: ', ['customBooking' => $customBooking, 'isEligible' => $isEligible]);
+            $name = $customBooking->name ?? 'Khách hàng';
+            Log::info('CustomTour status: ', ['customBooking' => $customBooking, 'isEligible' => $isEligible, 'name' => $name]);
         }
 
         if (!$isEligible) {
@@ -110,6 +113,8 @@ class FeedbackController extends Controller
                 'feedback' => $existingFeedback,
                 'canSubmit' => !$existingFeedback,
                 'tourType' => $tourType,
+                'code' => $code,
+                'name' => $name,
             ]);
         }
     }

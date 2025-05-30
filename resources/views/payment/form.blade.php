@@ -1,7 +1,9 @@
 @extends('layouts.app')
-
+<div class="relative">
+    <!-- Gradient Background -->
+    <div class="absolute inset-0 z-[-1] bg-gradient-to-b from-blue-100 to-blue-300"></div>
 @section('content')
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
             <h2 class="text-2xl font-bold mb-6 text-center text-blue-700">Chọn hình thức thanh toán</h2>
 

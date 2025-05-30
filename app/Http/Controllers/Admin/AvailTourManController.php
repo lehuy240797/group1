@@ -7,6 +7,7 @@ use App\Models\AvailableTour;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use App\Models\CustomTour;
 
 class AvailTourManController extends Controller
 {
@@ -33,6 +34,14 @@ class AvailTourManController extends Controller
             $query->where('price', '<=', $request->price);
         }
 
+        if ($request->filled('tourguide_id')) {
+        $query->where('tourguide_id', $request->tourguide_id);
+    }
+
+    if ($request->filled('driver_id')) {
+        $query->where('driver_id', $request->driver_id);
+    }
+
         // Lấy danh sách tours và tính booked_guests_count
         $tours = $query->get()->map(function ($availableTour) {
             $availableTour->booked_guests_count = $availableTour->availableTourBookings->sum('num_guests');
@@ -45,16 +54,31 @@ class AvailTourManController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        // Lấy các tourguide chưa được phân công
+        $start_date = $request->input('start_date') ?: now()->toDateString();
+        $end_date = $request->input('end_date') ?: now()->addDays(1)->toDateString();
+
         $tourguides = User::where('role', 'tourguide')
-            ->whereDoesntHave('toursAsTourGuide')
+            ->whereDoesntHave('customToursAsTourGuide', function ($q) use ($start_date, $end_date) {
+                $q->where('start_date', '<=', $end_date)
+                  ->where('end_date', '>=', $start_date);
+            })
+            ->whereDoesntHave('toursAsTourGuide', function ($q) use ($start_date, $end_date) {
+                $q->where('start_date', '<=', $end_date)
+                  ->where('end_date', '>=', $start_date);
+            })
             ->get();
 
-        // Lấy các driver chưa được phân công
         $drivers = User::where('role', 'driver')
-            ->whereDoesntHave('toursAsDriver')
+            ->whereDoesntHave('customToursAsDriver', function ($q) use ($start_date, $end_date) {
+                $q->where('start_date', '<=', $end_date)
+                  ->where('end_date', '>=', $start_date);
+            })
+            ->whereDoesntHave('toursAsDriver', function ($q) use ($start_date, $end_date) {
+                $q->where('start_date', '<=', $end_date)
+                  ->where('end_date', '>=', $start_date);
+            })
             ->get();
 
         return view('management.tours.avail_tour_man.create', compact('tourguides', 'drivers'));
@@ -76,10 +100,42 @@ class AvailTourManController extends Controller
             'max_guests' => 'required|integer|min:1',
             'transportation' => 'required|string|max:255',
             'hotel' => 'required|string|max:255',
-            'tourguide_id' => 'required|exists:users,id',
-            'driver_id' => 'required|exists:users,id',
+            'tourguide_id' => 'nullable|exists:users,id',
+            'driver_id' => 'nullable|exists:users,id',
             'image' => 'nullable|string',
         ]);
+
+        if ($request->tourguide_id) {
+            $conflictingTourGuideCustom = CustomTour::where('tourguide_id', $request->tourguide_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            $conflictingTourGuideAvailable = AvailableTour::where('tourguide_id', $request->tourguide_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            if ($conflictingTourGuideCustom || $conflictingTourGuideAvailable) {
+                return redirect()->back()->with('error', 'Tour Guide này đã được phân công cho một tour khác trong khoảng thời gian này!')->withInput();
+            }
+        }
+
+        if ($request->driver_id) {
+            $conflictingDriverCustom = CustomTour::where('driver_id', $request->driver_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            $conflictingDriverAvailable = AvailableTour::where('driver_id', $request->driver_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            if ($conflictingDriverCustom || $conflictingDriverAvailable) {
+                return redirect()->back()->with('error', 'Driver này đã được phân công cho một tour khác trong khoảng thời gian này!')->withInput();
+            }
+        }
 
         AvailableTour::create([
             'name_tour' => $request->name_tour,
@@ -122,8 +178,29 @@ class AvailTourManController extends Controller
      */
     public function edit(AvailableTour $avail_tour)
     {
-        $tourguides = User::where('role', 'tourguide')->get();
-        $drivers = User::where('role', 'driver')->get();
+        $tourguides = User::where('role', 'tourguide')
+            ->whereDoesntHave('customToursAsTourGuide', function ($q) use ($avail_tour) {
+                $q->where('start_date', '<=', $avail_tour->end_date)
+                  ->where('end_date', '>=', $avail_tour->start_date);
+            })
+            ->whereDoesntHave('toursAsTourGuide', function ($q) use ($avail_tour) {
+                $q->where('start_date', '<=', $avail_tour->end_date)
+                  ->where('end_date', '>=', $avail_tour->start_date)
+                  ->where('id', '!=', $avail_tour->id);
+            })
+            ->get();
+
+        $drivers = User::where('role', 'driver')
+            ->whereDoesntHave('customToursAsDriver', function ($q) use ($avail_tour) {
+                $q->where('start_date', '<=', $avail_tour->end_date)
+                  ->where('end_date', '>=', $avail_tour->start_date);
+            })
+            ->whereDoesntHave('toursAsDriver', function ($q) use ($avail_tour) {
+                $q->where('start_date', '<=', $avail_tour->end_date)
+                  ->where('end_date', '>=', $avail_tour->start_date)
+                  ->where('id', '!=', $avail_tour->id);
+            })
+            ->get();
 
         // Ánh xạ để hiển thị tên địa điểm dễ đọc
         $locationMap = [
@@ -159,10 +236,44 @@ class AvailTourManController extends Controller
         'max_guests' => 'required|integer|min:1',
         'transportation' => 'required|string|max:255',
         'hotel' => 'required|string|max:255',
-        'tourguide_id' => 'required|exists:users,id',
-        'driver_id' => 'required|exists:users,id',
+        'tourguide_id' => 'nullable|exists:users,id',
+        'driver_id' => 'nullable|exists:users,id',
         'image' => 'nullable|string',
     ]);
+
+    if ($request->tourguide_id) {
+            $conflictingTourGuideCustom = CustomTour::where('tourguide_id', $request->tourguide_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            $conflictingTourGuideAvailable = AvailableTour::where('tourguide_id', $request->tourguide_id)
+                ->where('id', '!=', $avail_tour->id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            if ($conflictingTourGuideCustom || $conflictingTourGuideAvailable) {
+                return redirect()->back()->with('error', 'Tour Guide này đã được phân công cho một tour khác trong khoảng thời gian này!')->withInput();
+            }
+        }
+
+        if ($request->driver_id) {
+            $conflictingDriverCustom = CustomTour::where('driver_id', $request->driver_id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            $conflictingDriverAvailable = AvailableTour::where('driver_id', $request->driver_id)
+                ->where('id', '!=', $avail_tour->id)
+                ->where('start_date', '<=', $request->end_date)
+                ->where('end_date', '>=', $request->start_date)
+                ->exists();
+
+            if ($conflictingDriverCustom || $conflictingDriverAvailable) {
+                return redirect()->back()->with('error', 'Driver này đã được phân công cho một tour khác trong khoảng thời gian này!')->withInput();
+            }
+        }
 
     $avail_tour->update([
         'name_tour' => $request->name_tour,

@@ -19,8 +19,10 @@
     use App\Http\Controllers\FeedbackController;
     use App\Http\Controllers\Admin\AdminFeedbackController;
 
+
     // Trang chủ
     Route::get('/', [HomeController::class, 'home'])->name('home');
+
 
     // Đăng xuất
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
@@ -97,6 +99,9 @@
         // Quản lý Custom Tours
         Route::resource('custom-tours', CusTourManController::class)->names('cust_tour_man');
         Route::post('/custom-tours/update-status/{id}', [CusTourManController::class, 'updateStatus'])->name('cust_tour_man.updateStatus');
+        Route::post('/custom-tours/{id}/assign-tour-guide', [CusTourManController::class, 'assignTourGuide'])->name('cust_tour_man.assignTourGuide');
+        Route::post('/custom-tours/{id}/assign-driver', [CusTourManController::class, 'assignDriver'])->name('cust_tour_man.assignDriver');
+
 
         // Quản lý nhân viên
         Route::resource('staff', StaffController::class);

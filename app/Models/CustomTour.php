@@ -21,10 +21,8 @@ class CustomTour extends Model
         'adult_tickets',
         'child_tickets',
         'customer_id',
-        'tour_guide_id',
+        'tourguide_id',
         'driver_id',
-        'tour_guide_name',
-        'driver_name',
         'hotel',
         'places'
     ];
@@ -34,12 +32,22 @@ class CustomTour extends Model
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    public function customTourBooking()
-    {
-        return $this->hasOne(CustomTourBookings::class, 'tour_id');
-    }
+   public function tourGuide()
+{
+    return $this->belongsTo(User::class, 'tourguide_id');
+}
 
-  protected static function booted()
+public function driver()
+{
+    return $this->belongsTo(User::class, 'driver_id');
+}
+
+public function customTourBooking()
+{
+    return $this->hasOne(CustomTourBookings::class, 'tour_id');
+}
+
+    protected static function booted()
     {
         static::creating(function ($customTour) {
             Log::info('Creating CustomTour:', [

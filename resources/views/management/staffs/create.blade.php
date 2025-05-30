@@ -1,77 +1,96 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-semibold mb-4">Thêm mới Nhân viên</h1>
+<div class="container mx-auto px-4">
+    <h1 class="text-3xl flex justify-center font-bold mb-6">Thêm mới Nhân viên</h1>
 
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <form id="create-staff-form" action="{{ route('admin.staff.store') }}" method="POST" class="space-y-4">
-                @csrf
+    <div class="container mx-auto px-4 max-w-xl">
+        <form id="create-staff-form" action="{{ route('admin.staff.store') }}" method="POST" class="space-y-6">
+            @csrf
 
-                <div class="mb-4">
-                    <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Họ và tên</label>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="name-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Họ và tên --}}
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label>
+                <input type="text" id="name" name="name" value="{{ old('name') }}" required
+                       class="w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <p id="name-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="staff_code" class="block text-gray-700 text-sm font-bold mb-2">Mã nhân viên <span class="text-gray-500 text-xs italic">(Ví dụ: T123)</span></label>
-                    <input type="text" name="staff_code" id="staff_code" value="{{ old('staff_code') }}"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
-                    <p id="staff_code-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Mã nhân viên --}}
+            <div>
+                <label for="staff_code" class="block text-sm font-medium text-gray-700 mb-1">
+                    Mã nhân viên <span class="text-gray-400 text-xs">(VD: T123)</span>
+                </label>
+                <input type="text" id="staff_code" name="staff_code" value="{{ old('staff_code') }}" disabled
+                       class="w-full rounded border-gray-300 shadow-sm bg-gray-100">
+                <p id="staff_code-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email <span class="text-gray-500 text-xs italic">(Ví dụ: abc@tourgether.com)</span></label>
-                    <input type="text" name="email" id="email" value="{{ old('email') }}" disabled
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="email-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Email --}}
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                    Email <span class="text-gray-400 text-xs">(VD: abc@tourgether.com)</span>
+                </label>
+                <input type="text" id="email" name="email" value="{{ old('email') }}" disabled
+                       class="w-full rounded border-gray-300 shadow-sm bg-gray-100">
+                <p id="email-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Số điện thoại</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('phone') }}" disabled
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="phone-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Số điện thoại --}}
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                <input type="text" id="phone" name="phone" value="{{ old('phone') }}" disabled
+                       class="w-full rounded border-gray-300 shadow-sm bg-gray-100">
+                <p id="phone-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Vai trò</label>
-                    <select name="role" id="role" required disabled
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">Chọn vai trò</option>
-                        <option value="tourguide" {{ old('role') == 'tourguide' ? 'selected' : '' }}>Tour Guide</option>
-                        <option value="driver" {{ old('role') == 'driver' ? 'selected' : '' }}>Driver</option>
-                    </select>
-                    <p id="role-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Vai trò --}}
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
+                <select name="role" id="role" required disabled
+                        class="w-full rounded border-gray-300 shadow-sm bg-gray-100 ">
+                    <option value="">Chọn vai trò</option>
+                    <option value="tourguide" {{ old('role') == 'tourguide' ? 'selected' : '' }}>Tour Guide</option>
+                    <option value="driver" {{ old('role') == 'driver' ? 'selected' : '' }}>Driver</option>
+                </select>
+                <p id="role-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Mật khẩu</label>
-                    <input type="password" name="password" id="password" required disabled
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="password-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Mật khẩu --}}
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                <input type="password" id="password" name="password" required disabled
+                       class="w-full rounded border-gray-300 shadow-sm bg-gray-100">
+                <p id="password-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <div class="mb-4">
-                    <label for="password_confirmation" class="block text-gray-700 text-sm font-bold mb-2">Xác nhận mật khẩu</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" required disabled
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="password_confirmation-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+            {{-- Xác nhận mật khẩu --}}
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required disabled
+                       class="w-full rounded border-gray-300 shadow-sm bg-gray-100">
+                <p id="password_confirmation-error" class="text-xs text-red-500 mt-1"></p>
+            </div>
 
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled>Thêm mới</button>
+            {{-- Actions --}}
+            <div class="flex items-center justify-end space-x-3">
                 <a href="{{ route('admin.staff.index') }}"
-                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
+                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">
                     Hủy
                 </a>
-            </form>
-        </div>
+                <button type="submit" disabled
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow disabled:opacity-50">
+                    Thêm mới
+                </button>
+            </div>
+        </form>
     </div>
+</div>
+
+
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('create-staff-form');
             const nameInput = document.getElementById('name');
             const staffCodeInput = document.getElementById('staff_code');
@@ -90,9 +109,9 @@
             const passwordConfirmationError = document.getElementById('password_confirmation-error');
 
 
-            nameInput.addEventListener('input', function () {
+            nameInput.addEventListener('input', function() {
                 const nameValue = this.value.trim();
-                const namePattern = /^[a-zA-Z\s]+$/; // Chỉ cho phép chữ và khoảng trắng
+                const namePattern = /^[a-zA-Z0-9\s]+$/; // Cho phép chữ, số và khoảng trắng
                 if (nameValue === '') {
                     nameError.textContent = 'Vui lòng nhập họ và tên.';
                     staffCodeInput.disabled = true;
@@ -107,7 +126,7 @@
                 }
             });
 
-            staffCodeInput.addEventListener('input', function () {
+            staffCodeInput.addEventListener('input', function() {
                 const staffCodeValue = this.value.trim();
                 const staffCodePattern = /^T\d{3}$/;
                 if (staffCodeValue === '') {
@@ -124,7 +143,7 @@
                 }
             });
 
-            emailInput.addEventListener('input', function () {
+            emailInput.addEventListener('input', function() {
                 const emailValue = this.value.trim();
                 const emailPattern = /^[a-zA-Z0-9._%+-]+@tourgether\.com$/;
                 if (emailValue === '') {
@@ -141,7 +160,7 @@
                 }
             });
 
-            phoneInput.addEventListener('input', function () {
+            phoneInput.addEventListener('input', function() {
                 const phoneValue = this.value.trim();
                 const phonePattern = /^\d{10}$/; // Đúng 10 số
                 if (phoneValue === '') {
@@ -194,7 +213,7 @@
             });
 
 
-            form.addEventListener('submit', function (event) {
+            form.addEventListener('submit', function(event) {
                 event.preventDefault();
 
                 let isValid = true;
@@ -203,8 +222,8 @@
                     nameError.textContent = 'Vui lòng nhập họ và tên.';
                     isValid = false;
                 }
-                if (!/^[a-zA-Z\s]+$/.test(nameInput.value.trim())) {
-                    nameError.textContent = 'Họ và tên chỉ được chứa chữ cái và khoảng trắng.';
+                if (!/^[a-zA-Z0-9\s]+$/.test(nameInput.value.trim())) {
+                    nameError.textContent = 'Họ và tên chỉ được chứa chữ cái, số và khoảng trắng.';
                     isValid = false;
                 }
                 if (staffCodeInput.value.trim() === '') {
@@ -231,7 +250,7 @@
                     phoneError.textContent = 'Số điện thoại phải là 10 chữ số.';
                     isValid = false;
                 }
-                 if (roleSelect.value === '') {
+                if (roleSelect.value === '') {
                     roleError.textContent = 'Vui lòng chọn vai trò.';
                     isValid = false;
                 }

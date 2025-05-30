@@ -1,47 +1,61 @@
 @extends('layouts.home')
+<!-- Background Music -->
+<audio id="bg-music" loop>
+    <source src="{{ asset('music/intro.mp3') }}" type="audio/mpeg">
+</audio>
 
+<!-- Mute/Unmute Button -->
+<button id="mute-toggle"
+    class="fixed bottom-4 left-4 z-50 bg-white/70 text-black px-4 py-2 rounded-full shadow-lg text-lg hover:bg-white transition-all">
+</button>
 <!-- Navbar -->
 <div class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/60 text-white z-50 shadow-md">
-        <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 h-17">
+    <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 h-17">
+        <a href="#home" class="flex items-center space-x-1">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="nav-logo h-5 w-auto">
+        </a>
 
+        {{-- Chỉ hiển thị các liên kết nếu không phải admin --}}
+        @auth
+            @if (auth()->user()->admin_type !== 'admin')
+                <a href="#placetogo" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Góc nhìn 360</a>
+                <a href="#available-tours" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tour Có Sẵn</a>
+                <a href="#custom-tour" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tour Tự Tạo</a>
+                <a href="#about" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Giới Thiệu</a>
+                <a href="#feedback.form" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Liên Hệ</a>
+                <a href="{{ route('my-bookings') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tra Cứu</a>
+            @endif
+        @else
+            <a href="#placetogo" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Góc nhìn 360</a>
+            <a href="#available-tours" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tour Có Sẵn</a>
+            <a href="#custom-tour" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tour Tự Tạo</a>
+            <a href="#about" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Giới Thiệu</a>
+            <a href="#feedback.form" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Liên Hệ</a>
+            <a href="{{ route('my-bookings') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Tra Cứu</a>
+        @endauth
 
-            <a href="#home" class="flex items-center space-x-1">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="nav-logo h-5 w-auto">
-            </a>
-            <a href="#placetogo" class="font-medium text-white" >Góc nhìn 360</a>
-            <a href="#available-tours" class="font-medium text-white" >Tour Có Sẵn</a>
-            <a href="#custom-tour" class="font-medium text-white">Tour Tự Tạo</a>
-            <a href="#about" class="font-medium text-white">Giới Thiệu</a>
-            <a href="#feedback.form" class="font-medium text-white">Liên Hệ</a>
-            <a href="{{ route('my-bookings') }}" class="font-medium text-white">Tra Cứu</a>
+        @auth
+            @if (auth()->user()->admin_type === 'admin')
+                <a href="{{ route('admin.tours.overview') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Quản Lý Tours</a>
+                <a href="{{ route('admin.staff.index') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Quản Lý Nhân Viên</a>
+                <a href="{{ route('admin.customers.index') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Quản Lý Khách Hàng</a>
+            @elseif(auth()->user()->role === 'tourguide' || auth()->user()->role === 'driver')
+                <a href="{{ route('my-tasks') }}" class="font-medium text-white hover:text-blue-400 transition-colors duration-300">Phân Công Của Tôi</a>
+            @endif
+        @endauth
 
+        {{-- Auth Buttons --}}
+        <div class="hidden md:flex items-center space-x-4">
             @auth
-                @if (auth()->user()->admin_type === 'admin')
-                    <a href="{{ route('admin.tours.overview') }}"
-                            class="pb-1 border-b-2 border-transparent hover:border-white/60">Quản Lí Tours</a>
-                    <a href="{{ route('admin.staff.index') }}"
-                            class="pb-1 border-b-2 border-transparent hover:border-white/60">Quản Lí Nhân Viên</a>
-                    <a href="{{ route('admin.customers.index') }}"
-                            class="pb-1 border-b-2 border-transparent hover:border-white/60">Quản Lí Khách Hàng</a>
-                @elseif(auth()->user()->role === 'tourguide' || auth()->user()->role === 'driver')
-                    <a href="{{ route('my-tasks') }}" class="pb-1 border-b-2 border-transparent hover:border-white/60">Phân Công
-                            Của Tôi</a>
-                @endif
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-red-500 hover:text-red-600 font-medium">Đăng Xuất</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="font-medium text-white hover:underline">Đăng Nhập</a>
             @endauth
-            </ul>
-
-            {{-- Auth Buttons --}}
-            <div class="hidden md:flex items-center space-x-4">
-                @auth
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-red-500 hover:text-red-600 font-medium">Đăng Xuất</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="font-medium text-white hover:underline">Đăng Nhập</a>
-                @endauth
-            </div>
         </div>
+    </div>
 </div>
 
 <div class="h-screen w-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
@@ -510,6 +524,40 @@
         );
 
         sections.forEach((section) => observer.observe(section));
+    });
+</script>
+
+<!-- Script to handle audio autoplay + mute -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const audio = document.getElementById("bg-music");
+        const muteBtn = document.getElementById("mute-toggle");
+
+        // Try autoplay after user interaction
+        const tryPlay = () => {
+            audio.play().catch(() => {});
+            document.removeEventListener("click", tryPlay);
+        };
+        document.addEventListener("click", tryPlay);
+
+        // Toggle mute/unmute
+        muteBtn.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+                muteBtn.textContent = "🔊";
+            } else {
+                audio.pause();
+                muteBtn.textContent = "🔇";
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bgMusic = document.getElementById("bg-music");
+        bgMusic.volume = 0.9; // Set volume from 0.0 (silent) to 1.0 (full volume)
+        bgMusic.play(); // Optional: autoplay if allowed
     });
 </script>
 

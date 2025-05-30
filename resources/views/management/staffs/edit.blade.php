@@ -1,43 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-semibold mb-4">Sửa thông tin Nhân viên</h1>
+    <div class="container mx-auto max-w-3xl">
+        <h1 class="text-2xl font-semibold mb-6">Sửa thông tin Nhân viên</h1>
 
         <div class="bg-white shadow-md rounded-lg p-6">
-            <form id="edit-staff-form" action="{{ route('admin.staff.update', $staff->id) }}" method="POST" class="space-y-4">
+            <form id="edit-staff-form" action="{{ route('admin.staff.update', $staff->id) }}" method="POST" class="space-y-5" novalidate>
                 @csrf
                 @method('PUT')
 
-                <div class="mb-4">
-                    <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Họ và tên</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $staff->name) }}" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="name-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+                @php
+                    // Define inputs once for easier repetition and consistency
+                    $fields = [
+                        'name' => ['label' => 'Họ và tên', 'type' => 'text', 'placeholder' => '', 'required' => true, 'pattern' => '^[a-zA-Z0-9\s]+$', 'error' => 'Họ và tên chỉ được chứa chữ cái và khoảng trắng.'],
+                        'staff_code' => ['label' => 'Mã nhân viên', 'type' => 'text', 'placeholder' => 'Ví dụ: T123', 'required' => true, 'pattern' => '^T\d{3}$', 'error' => 'Mã nhân viên phải có định dạng Txxx (ví dụ: T123).'],
+                        'email' => ['label' => 'Email', 'type' => 'email', 'placeholder' => 'Ví dụ: abc@tourgether.com', 'required' => true, 'pattern' => '^[a-zA-Z0-9._%+-]+@tourgether\.com$', 'error' => 'Email phải có định dạng abc@tourgether.com.'],
+                        'phone' => ['label' => 'Số điện thoại', 'type' => 'tel', 'placeholder' => '', 'required' => false, 'pattern' => '^\d{10}$', 'error' => 'Số điện thoại phải là 10 chữ số.'],
+                    ];
+                @endphp
 
-                <div class="mb-4">
-                    <label for="staff_code" class="block text-gray-700 text-sm font-bold mb-2">Mã nhân viên <span class="text-gray-500 text-xs italic">(Ví dụ: T123)</span></label>
-                    <input type="text" name="staff_code" id="staff_code" value="{{ old('staff_code', $staff->staff_code) }}" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="staff_code-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
+                @foreach ($fields as $field => $attr)
+                    <div>
+                        <label for="{{ $field }}" class="block text-gray-700 text-sm font-bold mb-2">
+                            {{ $attr['label'] }}
+                            @if($attr['placeholder'])<span class="text-gray-500 text-xs italic">({{ $attr['placeholder'] }})</span>@endif
+                        </label>
+                        <input
+                            type="{{ $attr['type'] }}"
+                            name="{{ $field }}"
+                            id="{{ $field }}"
+                            value="{{ old($field, $staff->$field) }}"
+                            {{ $attr['required'] ? 'required' : '' }}
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            autocomplete="off"
+                            pattern="{{ $attr['pattern'] ?? '' }}"
+                            >
+                        <p id="{{ $field }}-error" class="text-red-500 text-xs italic mt-1"></p>
+                    </div>
+                @endforeach
 
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email <span class="text-gray-500 text-xs italic">(Ví dụ: abc@tourgether.com)</span></label>
-                    <input type="text" name="email" id="email" value="{{ old('email', $staff->email) }}" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="email-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
-
-                <div class="mb-4">
-                    <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Số điện thoại</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('phone', $staff->phone) }}"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p id="phone-error" class="text-red-500 text-xs italic mt-1"></p>
-                </div>
-
-                <div class="mb-4">
+                <div>
                     <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Vai trò</label>
                     <select name="role" id="role" required
                             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -48,29 +50,37 @@
                     <p id="role-error" class="text-red-500 text-xs italic mt-1"></p>
                 </div>
 
-                <div class="mb-4">
+                <div>
                     <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Mật khẩu (để trống nếu không thay đổi)</label>
                     <input type="password" name="password" id="password"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                           autocomplete="new-password"
+                           minlength="8"
+                    >
                     <p id="password-error" class="text-red-500 text-xs italic mt-1"></p>
                 </div>
 
-                <div class="mb-4">
+                <div>
                     <label for="password_confirmation" class="block text-gray-700 text-sm font-bold mb-2">Xác nhận mật khẩu</label>
                     <input type="password" name="password_confirmation" id="password_confirmation"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                           autocomplete="new-password"
+                    >
                     <p id="password_confirmation-error" class="text-red-500 text-xs italic mt-1"></p>
                 </div>
 
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cập nhật</button>
-                <a href="{{ route('admin.staff.index') }}"
-                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
-                    Hủy
-                </a>
+                <div class="flex items-center">
+                    <button type="submit" id="submit-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50" disabled>
+                        Cập nhật
+                    </button>
+                    <a href="{{ route('admin.staff.index') }}"
+                       class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-3">
+                        Hủy
+                    </a>
+                </div>
             </form>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('edit-staff-form');
@@ -101,7 +111,7 @@
 
             function validateName() {
                 const nameValue = nameInput.value.trim();
-                const namePattern = /^[a-zA-Z\s]+$/;
+                const namePattern = /^[a-zA-Z0-9\s]+$/; // Cho phép chữ, số và khoảng trắng
                 if (nameValue === '') {
                     nameError.textContent = 'Vui lòng nhập họ và tên.';
                     return false;

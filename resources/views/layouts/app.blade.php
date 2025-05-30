@@ -6,6 +6,7 @@
     <title>@yield('title', 'Tourgether')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
@@ -18,7 +19,7 @@
     <style>
         html,
         body {
-             margin: 0;
+            margin: 0;
             padding: 0;
             width: 100%;
             overflow-x: hidden;
@@ -101,11 +102,10 @@
         .swiper-button-prev {
             color: white;
         }
-
     </style>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             new Swiper('.swiper-container', {
                 loop: true,
                 pagination: {
@@ -122,7 +122,7 @@
             const toggleBtn = document.getElementById('hamburger-menu');
             const mobileNavbar = document.getElementById('mobile-navbar');
             if (toggleBtn && mobileNavbar) {
-                toggleBtn.addEventListener('click', function () {
+                toggleBtn.addEventListener('click', function() {
                     mobileNavbar.classList.toggle('hidden');
                 });
             }
@@ -136,63 +136,100 @@
             {{-- Nav Links (Desktop) --}}
             <div class="w-full backdrop-blur-md bg-black/60 text-white z-50 shadow-md">
                 <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 h-17">
-
-
                     <a href="/" class="flex items-center space-x-1">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo" class="nav-logo h-5 w-auto">
                     </a>
-                    <a href="{{ route('available-tours') }}" class="font-medium px-2 py-1 transition-colors duration-300
+
+                    {{-- Chỉ hiển thị các liên kết nếu không phải admin --}}
+                    @auth
+                        @if (auth()->user()->admin_type !== 'admin')
+                            <a href="{{ route('available-tours') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('available-tours') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Tour Có Sẵn
+                            </a>
+                            <a href="{{ route('custom-tours') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('custom-tours') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Tour Tự Tạo
+                            </a>
+                            <a href="{{ route('about') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('about') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Giới Thiệu
+                            </a>
+                            <a href="{{ route('feedback.form') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('feedback.form') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Liên Hệ
+                            </a>
+                            <a href="{{ route('my-bookings') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('my-bookings') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Tra Cứu Tours
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('available-tours') }}"
+                            class="font-medium px-2 py-1 transition-colors duration-300
                         {{ request()->routeIs('available-tours') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Tour Có Sẵn
-                    </a>
-
-                    <a href="{{ route('custom-tours') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                            Tour Có Sẵn
+                        </a>
+                        <a href="{{ route('custom-tours') }}"
+                            class="font-medium px-2 py-1 transition-colors duration-300
                         {{ request()->routeIs('custom-tours') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Tour Tự Tạo
-                    </a>
-
-                    <a href="{{ route('about') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                            Tour Tự Tạo
+                        </a>
+                        <a href="{{ route('about') }}"
+                            class="font-medium px-2 py-1 transition-colors duration-300
                         {{ request()->routeIs('about') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Giới Thiệu
-                    </a>
-
-                    <a href="{{ route('feedback.form') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                            Giới Thiệu
+                        </a>
+                        <a href="{{ route('feedback.form') }}"
+                            class="font-medium px-2 py-1 transition-colors duration-300
                         {{ request()->routeIs('feedback.form') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Liên Hệ
-                    </a>
-                    <a href="{{ route('my-bookings') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                            Liên Hệ
+                        </a>
+                        <a href="{{ route('my-bookings') }}"
+                            class="font-medium px-2 py-1 transition-colors duration-300
                         {{ request()->routeIs('my-bookings') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Tra Cứu Tours
-                    </a>
+                            Tra Cứu Tours
+                        </a>
+                    @endauth
 
                     @auth
                         @if (auth()->user()->admin_type === 'admin')
-                            <a href="{{ route('admin.tours.overview') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                            <a href="{{ route('admin.tours.overview') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
                             {{ request()->routeIs('admin.tours.overview') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Quản Lý Tours
-                    </a>
-                            <a href="{{ route('admin.staff.index') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                                Quản Lý Tours
+                            </a>
+                            <a href="{{ route('admin.staff.index') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
                             {{ request()->routeIs('admin.staff.index') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Quản Lý Nhân Viên
-                    </a>
-                            <a href="{{ route('admin.customers.index') }}" class="font-medium px-2 py-1 transition-colors duration-300
+                                Quản Lý Nhân Viên
+                            </a>
+                            <a href="{{ route('admin.customers.index') }}"
+                                class="font-medium px-2 py-1 transition-colors duration-300
                             {{ request()->routeIs('admin.customers.index') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
-                        Quản Lý Khách Hàng
-                    </a>
+                                Quản Lý Khách Hàng
+                            </a>
                         @elseif(auth()->user()->role === 'tourguide' || auth()->user()->role === 'driver')
                             <a href="{{ route('my-tasks') }}"
-                                    class="pb-1 border-b-2 border-transparent hover:border-white/60">Phân Công
-                                    Của Tôi</a>
+                                class="font-medium px-2 py-1 transition-colors duration-300
+                            {{ request()->routeIs('my-tasks') ? 'nav-glow' : 'text-white hover:text-blue-400' }}">
+                                Phân Công Của Tôi
+                            </a>
                         @endif
                     @endauth
-                    </ul>
 
                     {{-- Auth Buttons --}}
                     <div class="hidden md:flex items-center space-x-4">
                         @auth
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="text-red-500 hover:text-red-600 font-medium">Đăng Xuất</button>
+                                <button type="submit" class="text-red-500 hover:text-red-600 font-medium">Đăng
+                                    Xuất</button>
                             </form>
                         @else
                             <a href="{{ route('login') }}" class="font-medium text-white hover:underline">Đăng Nhập</a>
@@ -213,30 +250,34 @@
 
 
     {{-- Mobile Navbar --}}
-    
     <div class="md:hidden hidden" id="mobile-navbar">
         <ul class="flex flex-col space-y-4 p-4 bg-white shadow-md">
-            <li><a href="{{ route('available-tours') }}" class="nav-link text-black">Tour Có Sẵn</a></li>
-            <li><a href="{{ route('custom-tours') }}" class="nav-link text-black">Tour Tự Tạo</a></li>
-
-            <li><a href="{{ route('about') }}" class="nav-link text-black">Giới Thiệu</a></li>
-            <li><a href="{{ route('feedback.form') }}" class="nav-link text-black">Liên Hệ</a></li>
-            <li><a href="{{ route('my-bookings') }}" class="nav-link text-black">Tra Cứu Tours</a></li>
+            {{-- Chỉ hiển thị các liên kết nếu không phải admin --}}
+            @auth
+                @if (auth()->user()->admin_type !== 'admin')
+                    <li><a href="{{ route('available-tours') }}" class="nav-link text-black">Tour Có Sẵn</a></li>
+                    <li><a href="{{ route('custom-tours') }}" class="nav-link text-black">Tour Tự Tạo</a></li>
+                    <li><a href="{{ route('about') }}" class="nav-link text-black">Giới Thiệu</a></li>
+                    <li><a href="{{ route('feedback.form') }}" class="nav-link text-black">Liên Hệ</a></li>
+                    <li><a href="{{ route('my-bookings') }}" class="nav-link text-black">Tra Cứu Tours</a></li>
+                @endif
+            @else
+                <li><a href="{{ route('available-tours') }}" class="nav-link text-black">Tour Có Sẵn</a></li>
+                <li><a href="{{ route('custom-tours') }}" class="nav-link text-black">Tour Tự Tạo</a></li>
+                <li><a href="{{ route('about') }}" class="nav-link text-black">Giới Thiệu</a></li>
+                <li><a href="{{ route('feedback.form') }}" class="nav-link text-black">Liên Hệ</a></li>
+                <li><a href="{{ route('my-bookings') }}" class="nav-link text-black">Tra Cứu Tours</a></li>
+            @endauth
 
             @auth
                 @if (auth()->user()->admin_type === 'admin')
-                    <li><a href="{{ route('admin.tours.overview') }}" class="nav-link text-black">Quản Lí Tours</a>
-                    </li>
-                    <li><a href="{{ route('admin.staff.index') }}" class="nav-link text-black">Quản Lí Nhân Viên</a>
-                    </li>
-                    <li><a href="{{ route('admin.customers.index') }}" class="nav-link text-black">Quản Lí Khách
-                            Hàng</a>
+                    <li><a href="{{ route('admin.tours.overview') }}" class="nav-link text-black">Quản Lí Tours</a></li>
+                    <li><a href="{{ route('admin.staff.index') }}" class="nav-link text-black">Quản Lí Nhân Viên</a></li>
+                    <li><a href="{{ route('admin.customers.index') }}" class="nav-link text-black">Quản Lí Khách Hàng</a>
                     </li>
                 @elseif(auth()->user()->role === 'tourguide' || auth()->user()->role === 'driver')
                     <li><a href="{{ route('my-tasks') }}" class="nav-link text-black">Phân Công Của Tôi</a></li>
                 @endif
-            @endauth
-            @auth
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -256,52 +297,53 @@
     @include('partials.chatbot_ui')
 
     <footer class="relative bottom-0 w-full z-5 backdrop-blur-md bg-black/50 text-white py-6">
-            <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
 
-                <!-- Cột 1: Thông tin công ty -->
-                <div class="flex flex-col justify-between h-full items-center">
-                    <h2 class="text-xl font-bold mb-2">Tourgether © 2025</h2>
-                    <div>
-                        <p class="text-sm">Công ty TNHH Du Lịch Tourgether</p>
-                        <p class="text-sm">📍 391A Đường Nam Kỳ Khởi Nghĩa, Phường Võ Thị Sáu, Quận 3, TP. HCM</p>
-                        <p class="text-sm">📞 0946467455</p>
-                    </div>
-                </div>
-
-                <!-- Cột 2: Giấy phép -->
-                <div class="flex flex-col justify-between h-full items-center">
-                    <h3 class="text-lg font-semibold mb-2">Pháp lý</h3>
-                    <div>
-                        <p class="text-sm">🆔 GPKD: 0300465937</p>
-                        <p class="text-sm">Cấp ngày 05/05/2025</p>
-                        <p class="text-sm">Sở KH&ĐT TP. HCM</p>
-                        <p class="text-sm">🌍 GP lữ hành Quốc tế: 79-234/2022/TCDL-GP LHQT</p>
-                    </div>
-                </div>
-
-                <!-- Cột 3: Social media -->
-                <div class="flex flex-col justify-between h-full items-center">
-                    <h3 class="text-lg font-semibold mb-2">Kết nối</h3>
-                    <div class="flex justify-center space-x-4 text-4xl">
-                        <a href="#" class="hover:text-blue-500 transition"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="hover:text-sky-400 transition"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="hover:text-pink-500 transition"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-
-                <!-- Cột 4: Liên hệ -->
-                <div class="flex flex-col justify-between h-full items-center">
-                    <h3 class="text-lg font-semibold mb-2">Chứng Nhận</h3>
-                    <div>
-                        <img src="{{ asset('images/chungnhan.png') }}" alt="Certification" class="w-32 h-auto  rounded" />
-                    </div>
+            <!-- Cột 1: Thông tin công ty -->
+            <div class="flex flex-col justify-between h-full items-center">
+                <h2 class="text-xl font-bold mb-2">Tourgether © 2025</h2>
+                <div>
+                    <p class="text-sm">Công ty TNHH Du Lịch Tourgether</p>
+                    <p class="text-sm">📍 391A Đường Nam Kỳ Khởi Nghĩa, Phường Võ Thị Sáu, Quận 3, TP. HCM</p>
+                    <p class="text-sm">📞 0946467455</p>
                 </div>
             </div>
 
-            <div class="mt-6 text-center text-gray-400 text-xs">
-                &copy; 2025 Tourgether. All rights reserved.
+            <!-- Cột 2: Giấy phép -->
+            <div class="flex flex-col justify-between h-full items-center">
+                <h3 class="text-lg font-semibold mb-2">Pháp lý</h3>
+                <div>
+                    <p class="text-sm">🆔 GPKD: 0300465937</p>
+                    <p class="text-sm">Cấp ngày 05/05/2025</p>
+                    <p class="text-sm">Sở KH&ĐT TP. HCM</p>
+                    <p class="text-sm">🌍 GP lữ hành Quốc tế: 79-234/2022/TCDL-GP LHQT</p>
+                </div>
             </div>
-        </footer>
+
+            <!-- Cột 3: Social media -->
+            <div class="flex flex-col justify-between h-full items-center">
+                <h3 class="text-lg font-semibold mb-2">Kết nối</h3>
+                <div class="flex justify-center space-x-4 text-4xl">
+                    <a href="#" class="hover:text-blue-500 transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-sky-400 transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-pink-500 transition"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <!-- Cột 4: Liên hệ -->
+            <div class="flex flex-col justify-between h-full items-center">
+                <h3 class="text-lg font-semibold mb-2">Chứng Nhận</h3>
+                <div>
+                    <img src="{{ asset('images/chungnhan.png') }}" alt="Certification"
+                        class="w-32 h-auto  rounded" />
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center text-gray-400 text-xs">
+            &copy; 2025 Tourgether. All rights reserved.
+        </div>
+    </footer>
 
     <script>
         function toggleChatbot() {
@@ -309,11 +351,12 @@
             chatbot.classList.toggle('hidden');
         }
     </script>
+    @livewireScripts
 
 </body>
 
 
-<script src="{{asset('js/chatbot.js')}}"></script>
-@stack('scripts');
+<script src="{{ asset('js/chatbot.js') }}"></script>
+@stack('scripts')
 
 </html>

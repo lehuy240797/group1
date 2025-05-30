@@ -7,13 +7,70 @@ use Illuminate\Http\Request;
 use App\Models\CustomTour;
 use App\Models\CustomTourBookings;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use App\Models\AvailableTour;
 
 
 class CusTourManController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tours = CustomTour::with('customTourBooking')->get();
+        $search = $request->input('search');
+
+        $query = CustomTour::with(['customTourBooking', 'tourGuide', 'driver']);
+
+        if ($request->filled('search')) {
+            $query->where('destination', 'like', '%' . $search . '%')
+                  ->orWhereHas('customTourBooking', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                  });
+        }
+
+        $tours = $query->get()->map(function ($tour) {
+            $availableTourGuides = User::where('role', 'tourguide')
+                ->whereDoesntHave('customToursAsTourGuide', function ($q) use ($tour) {
+                    $q->where('start_date', '<=', $tour->end_date)
+                      ->where('end_date', '>=', $tour->start_date);
+                })
+                ->whereDoesntHave('toursAsTourGuide', function ($q) use ($tour) {
+                $q->where('start_date', '<=', $tour->end_date)
+                  ->where('end_date', '>=', $tour->start_date);
+            })
+            ->get();
+
+            $availableDrivers = User::where('role', 'driver')
+                ->whereDoesntHave('customToursAsDriver', function ($q) use ($tour) {
+                    $q->where('start_date', '<=', $tour->end_date)
+                      ->where('end_date', '>=', $tour->start_date);
+                })
+                ->whereDoesntHave('toursAsDriver', function ($q) use ($tour) {
+                $q->where('start_date', '<=', $tour->end_date)
+                  ->where('end_date', '>=', $tour->start_date);
+            })
+            ->get();
+
+            return (object)[
+                'id' => $tour->id,
+                'name' => optional($tour->customTourBooking)->name,
+                'email' => optional($tour->customTourBooking)->email,
+                'phone' => optional($tour->customTourBooking)->phone,
+                'destination' => $tour->destination,
+                'start_date' => $tour->start_date,
+                'end_date' => $tour->end_date,
+                'flight_price' => $tour->flight_price,
+                'budget' => $tour->budget,
+                'tracking_code' => optional($tour->customTourBooking)->tracking_code,
+                'tourguide_id' => $tour->tourguide_id,
+                'driver_id' => $tour->driver_id,
+                'tour_guide_name' => optional($tour->tourGuide)->name,
+                'driver_name' => optional($tour->driver)->name,
+                'status' => optional($tour->customTourBooking)->status ?? 'pending',
+                'availableTourGuides' => $availableTourGuides,
+                'availableDrivers' => $availableDrivers,
+            ];
+        });
+
         return view('management.tours.cust_tour_man.index', compact('tours'));
     }
 
@@ -165,67 +222,19 @@ class CusTourManController extends Controller
         return false;
     }
 
-    public function edit($id)
+     public function show($id)
     {
-        $tour = CustomTour::findOrFail($id);
-        return view('management.tours.cust_tour_man.edit', compact('tour'));
-    }
+        $tour = CustomTour::with(['customTourBooking', 'tourGuide', 'driver'])->findOrFail($id);
+        $places = json_decode($tour->places, true) ?? [];
 
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'destination' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'budget' => 'required|numeric|min:0',
-            'flight_price' => 'required|numeric|min:0',
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
-            'email' => 'required|email|max:255',
-            'total_price' => 'required|numeric|min:0',
-            'hotel' => 'required|string|max:255',
-            'places' => 'nullable|array',
-            'places.*' => 'string',
-        ]);
-
-        $tour = CustomTour::findOrFail($id);
-
-        $tour->update([
-            'destination' => $validated['destination'],
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'budget' => $validated['total_price'],
-            'flight_price' => $validated['flight_price'],
-            'adult_tickets' => $request->input('adult_tickets', 0),
-            'child_tickets' => $request->input('child_tickets', 0),
-            'hotel' => $validated['hotel'],
-            'total_price' => $validated['total_price'],
-        ]);
-
-        if ($tour->customTourBooking) {
-            $tour->customTourBooking->update([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'email' => $validated['email'],
-                'places' => !empty($validated['places']) ? implode(',', $validated['places']) : null,
-                'total_price' => $validated['total_price'],
-                'flight_price' => $validated['flight_price'],
-                'adult_tickets' => $request->input('adult_tickets', 0),
-                'child_tickets' => $request->input('child_tickets', 0),
-            ]);
-        }
-
-        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Cập nhật thành công!');
+        return view('management.tours.cust_tour_man.show', compact('tour', 'places'));
     }
 
     public function destroy($id)
     {
         $tour = CustomTour::findOrFail($id);
-
-        CustomTourBookings::where('tour_id', $id)->delete();
         $tour->delete();
-
-        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Đã xóa tour thành công!');
+        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Tour đã được xóa thành công!');
     }
 
     public function updateStatus(Request $request, $id)
@@ -234,15 +243,69 @@ class CusTourManController extends Controller
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        $customTourBookings = CustomTourBookings::where('tour_id', $id)->first();
-        if (!$customTourBookings) {
-            return redirect()->back()->with('error', 'Không tìm thấy đơn hàng cần cập nhật.');
+        $tour = CustomTour::findOrFail($id);
+        $tour->customTourBooking->update(['status' => $request->status]);
+
+        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Trạng thái tour đã được cập nhật!');
+    }
+
+    public function assignTourGuide(Request $request, $id)
+    {
+        $request->validate([
+            'tourguide_id' => 'nullable|exists:users,id',
+        ]);
+
+        $tour = CustomTour::findOrFail($id);
+
+        // Kiểm tra xung đột thời gian
+        if ($request->tourguide_id) {
+            $conflictingCustomTour = CustomTour::where('tourguide_id', $request->tourguide_id)
+                ->where('id', '!=', $id)
+                ->where('start_date', '<=', $tour->end_date)
+                ->where('end_date', '>=', $tour->start_date)
+                ->exists();
+
+            $conflictingAvailableTour = AvailableTour::where('tourguide_id', $request->tourguide_id)
+            ->where('start_date', '<=', $tour->end_date)
+            ->where('end_date', '>=', $tour->start_date)
+            ->exists();
+
+        if ($conflictingCustomTour || $conflictingAvailableTour) {
+            return redirect()->route('admin.cust_tour_man.index')
+                ->with('error', 'Tour Guide này đã được phân công cho một tour khác trong khoảng thời gian này!');
+        }
+    }
+
+        $tour->update(['tourguide_id' => $request->tourguide_id]);
+
+        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Tour Guide đã được phân công thành công!');
+    }
+
+    public function assignDriver(Request $request, $id)
+    {
+        $request->validate([
+            'driver_id' => 'nullable|exists:users,id',
+        ]);
+
+        $tour = CustomTour::findOrFail($id);
+
+        // Kiểm tra xung đột thời gian
+        if ($request->driver_id) {
+            $conflictingTour = CustomTour::where('driver_id', $request->driver_id)
+                ->where('id', '!=', $id)
+                ->where('start_date', '<=', $tour->end_date)
+                ->where('end_date', '>=', $tour->start_date)
+                ->exists();
+
+            if ($conflictingTour) {
+                return redirect()->route('admin.cust_tour_man.index')
+                    ->with('error', 'Driver này đã được phân công cho một tour khác trong khoảng thời gian này!');
+            }
         }
 
-        $customTourBookings->status = $request->status;
-        $customTourBookings->save();
+        $tour->update(['driver_id' => $request->driver_id]);
 
-        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Cập nhật trạng thái thành công!');
+        return redirect()->route('admin.cust_tour_man.index')->with('success', 'Driver đã được phân công thành công!');
     }
     
 }

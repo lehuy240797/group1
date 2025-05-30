@@ -9,6 +9,7 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="absolute inset-0 z-[-1] bg-gradient-to-b from-blue-100 to-blue-300"></div>
     <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Quét mã QR để thanh toán</h2>
         <img src="{{ $qrImage }}" alt="QR Code" class="mx-auto w-64 h-64 border rounded-lg">

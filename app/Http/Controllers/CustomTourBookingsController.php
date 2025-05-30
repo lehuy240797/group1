@@ -31,6 +31,8 @@ class CustomTourBookingsController extends Controller
         $tour->customer_id = $customer->id;
         $tour->save();
 
+        // 👉 Tạo mã theo dõi booking
+        $trackingCode = 'CUS' . strtoupper(uniqid());
         // **Lưu booking vào database**
         CustomTourBookings::create([
             'tour_id' => $tour->id,
@@ -44,9 +46,9 @@ class CustomTourBookingsController extends Controller
             'end_date' => $request->input('end_date'),
             'num_guests' => $request->input('num_guests'),
             'payment_date' => now(),
-            'flight_price' => $tour->flight_price, // ✅ Thêm giá vé máy bay
-            'adult_tickets' => $tour->adult_tickets, // ✅ Thêm số vé người lớn
-            'child_tickets' => $tour->child_tickets,
+            'hotel' => $tour->hotel,
+            'places' => $tour->places,
+            'tracking_code' => $trackingCode,
 
         ]);
 
@@ -62,18 +64,11 @@ class CustomTourBookingsController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
             'num_guests' => $request->input('num_guests'),
-            'flight_price' => $tour->flight_price, // ✅ Thêm giá vé máy bay vào session
-            'adult_tickets' => $tour->adult_tickets, // ✅ Thêm số vé người lớn vào session
-            'child_tickets' => $tour->child_tickets,
+            'hotel' => $tour->hotel,
+            'places' => $tour->places,
+            'tracking_code' => $trackingCode,
         ];
         session(['booking_data' => $bookingData]);
-        if (!$tour->flight_price) {
-            return redirect()->back()->with('error', 'Giá vé máy bay không hợp lệ.');
-        }
-        if ($tour->adult_tickets <= 0) {
-            return redirect()->back()->with('error', 'Số lượng vé người lớn phải lớn hơn 0.');
-        }
-        
 
         // Chuyển hướng đến form chọn hình thức thanh toán
         return redirect()->route('payment.form');

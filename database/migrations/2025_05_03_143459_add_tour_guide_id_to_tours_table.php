@@ -14,8 +14,8 @@ class AddTourGuideIdToToursTable extends Migration
     public function up()
     {
         Schema::table('tours', function (Blueprint $table) {
-            $table->unsignedBigInteger('tour_guide_id')->nullable()->after('id');
-            $table->foreign('tour_guide_id')->references('id')->on('users')->onDelete('set null');
+            $table->unsignedBigInteger('tourguide_id')->nullable()->after('id');
+            $table->foreign('tourguide_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 
@@ -27,8 +27,8 @@ class AddTourGuideIdToToursTable extends Migration
     public function down()
     {
         Schema::table('tours', function (Blueprint $table) {
-            $table->dropForeign(['tour_guide_id']);
-            $table->dropColumn('tour_guide_id');
+            $table->dropForeign(['tourguide_id']);
+            $table->dropColumn('tourguide_id');
         });
     }
 }

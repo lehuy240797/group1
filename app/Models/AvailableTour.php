@@ -61,4 +61,49 @@ class AvailableTour extends Model
         }
         return 'Chưa xác định';
     }
+
+    public function hasTourGuideConflict()
+    {
+        if (!$this->tourguide_id) {
+            return false;
+        }
+
+        // Check conflicts with other AvailableTours
+        $availableConflict = AvailableTour::where('tourguide_id', $this->tourguide_id)
+            ->where('id', '!=', $this->id)
+            ->where('start_date', '<=', $this->end_date)
+            ->where('end_date', '>=', $this->start_date)
+            ->exists();
+
+        // Check conflicts with CustomTours
+        $customConflict = CustomTour::where('tourguide_id', $this->tourguide_id)
+            ->where('start_date', '<=', $this->end_date)
+            ->where('end_date', '>=', $this->start_date)
+            ->exists();
+
+        return $availableConflict || $customConflict;
+    }
+
+    public function hasDriverConflict()
+    {
+        if (!$this->driver_id) {
+            return false;
+        }
+
+        // Check conflicts with other AvailableTours
+        $availableConflict = AvailableTour::where('driver_id', $this->driver_id)
+            ->where('id', '!=', $this->id)
+            ->where('start_date', '<=', $this->end_date)
+            ->where('end_date', '>=', $this->start_date)
+            ->exists();
+
+        // Check conflicts with CustomTours
+        $customConflict = CustomTour::where('driver_id', $this->driver_id)
+            ->where('start_date', '<=', $this->end_date)
+            ->where('end_date', '>=', $this->start_date)
+            ->exists();
+
+        return $availableConflict || $customConflict;
+    }
+
 }

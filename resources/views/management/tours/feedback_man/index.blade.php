@@ -4,7 +4,7 @@
 @include('management.tours.navigation')
 
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">Quản lý phản hồi</h1>
+    <h1 class="text-2xl font-bold mb-7">Quản lý phản hồi</h1>
 
     @if (session('success'))
         <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-4">
@@ -13,8 +13,8 @@
     @endif
 
     <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
-            <thead class="bg-gray-100 text-left text-sm font-semibold text-gray-700">
+        <table class="min-w-full text-sm text-center text-gray-700 border-collapse">
+                <thead class="bg-gray-100 uppercase text-xs text-gray-600 tracking-wider">
                 <tr>
                     <th class="px-4 py-3 border-b">Tên khách hàng</th>
                     <th class="px-4 py-3 border-b">Mã đặt tour</th>
