@@ -13,6 +13,10 @@ Dự án quản lý đặt tour du lịch xây dựng bằng Laravel.
 - Vite
 - MySQL
 
+## 🎥 Video Demo
+
+- [🔗 Xem trên YouTube](https://youtu.be/4mrO1SXO-U4)
+
 ## 👤 Các thành viên của Group 1
 
 | Họ và Tên          | Mã Số Sinh Viên     |
